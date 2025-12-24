@@ -1,6 +1,7 @@
 import React from "react";
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
@@ -16,6 +17,7 @@ import type { Route } from "./+types/root";
 import { Navbar } from "./components/navbar";
 import { Footer } from "./components/footer";
 import { SearchModal } from "./components/search-modal";
+import { NotFound } from "./components/not-found";
 import "./app.css";
 
 export async function loader() {
@@ -124,7 +126,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     message = error.status === 404 ? "404" : "Error";
     details =
       error.status === 404
-        ? "The requested page could not be found."
+        ? "抱歉，您访问的页面似乎飞走了。"
         : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
@@ -132,14 +134,38 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 transition-colors duration-500">
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 dark:bg-indigo-500/10 blur-[120px]" />
+        <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] rounded-full bg-purple-500/20 dark:bg-purple-500/10 blur-[120px]" />
+      </div>
+      
+      <main className="flex-grow flex items-center justify-center">
+        {message === "404" ? (
+          <NotFound message={message} details={details} />
+        ) : (
+          <div className="p-8 max-w-2xl w-full bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{message}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{details}</p>
+            {stack && (
+              <pre className="w-full p-4 overflow-x-auto bg-black/5 dark:bg-black/20 rounded-xl text-sm font-mono text-gray-700 dark:text-gray-300">
+                <code>{stack}</code>
+              </pre>
+            )}
+            <div className="mt-8">
+              <Link
+                to="/"
+                className="inline-block px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+              >
+                回到首页
+              </Link>
+            </div>
+          </div>
+        )}
+      </main>
+      
+      <ScrollRestoration />
+      <Scripts />
+    </div>
   );
 }
