@@ -8,6 +8,7 @@ import remarkHtml from "remark-html";
 import gfm from "remark-gfm";
 import remarkDirective from "remark-directive";
 import remarkRehype from "remark-rehype";
+import rehypeRaw from "rehype-raw";
 import rehypeHighlight from "rehype-highlight";
 import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
@@ -58,7 +59,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
     .use(gfm)
     .use(remarkDirective)
     .use(remarkDirectiveTransformer)
-    .use(remarkRehype)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeRaw)
     .use(rehypeHighlight, { 
       detect: true,
       ignoreMissing: true,
