@@ -53,11 +53,15 @@ export function meta() {
   return [
     { title: "Project Butterfly" },
     { name: "description", content: "A beautiful blog project." },
+    { name: "apple-mobile-web-app-capable", content: "yes" },
+    { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+    { name: "apple-mobile-web-app-title", content: "Butterfly" },
   ];
 }
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/x-icon", href: favicon },
+  { rel: "manifest", href: "/manifest.webmanifest" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
@@ -79,17 +83,40 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#ffffff" />
         <Meta />
         <Links />
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(registration => {
+                      console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                      console.log('SW registration failed: ', registrationError);
+                    });
+                });
+              }
+            `,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
               (function() {
                 const theme = localStorage.getItem('theme');
-                if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                const isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                if (isDark) {
                   document.documentElement.classList.add('dark');
                 } else {
                   document.documentElement.classList.remove('dark');
+                }
+                const meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) {
+                  meta.setAttribute('content', isDark ? '#0a0a0a' : '#ffffff');
                 }
               })();
             `,

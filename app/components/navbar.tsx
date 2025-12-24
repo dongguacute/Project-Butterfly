@@ -30,6 +30,12 @@ export function Navbar({
     const observer = new MutationObserver(() => {
       const isDarkNow = document.documentElement.classList.contains("dark");
       setTheme(isDarkNow ? "dark" : "light");
+      
+      // Update theme-color meta tag
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) {
+        meta.setAttribute('content', isDarkNow ? '#0a0a0a' : '#ffffff');
+      }
     });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
     return () => observer.disconnect();
