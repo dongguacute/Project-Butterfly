@@ -1,8 +1,16 @@
 import { useState } from "react";
 import { Link, useLoaderData } from "react-router";
+import type { Route } from "./+types/articles";
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "文章 - Project Butterfly" },
+    { name: "description", content: "Explore articles on Project Butterfly." },
+  ];
+}
 
 interface ArticleMeta {
   id: string;

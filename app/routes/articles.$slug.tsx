@@ -15,10 +15,19 @@ import { h } from "hastscript";
 import parse from "html-react-parser";
 import gsap from "gsap";
 import type { LoaderFunctionArgs } from "react-router";
+import type { Route } from "./+types/articles.$slug";
 import { ClockWidget, WeatherWidget } from "~/components/widgets";
 
 // Add highlight.js theme
 import "highlight.js/styles/github-dark.css";
+
+export function meta({ data }: Route.MetaArgs) {
+  if (!data) return [{ title: "文章 - Project Butterfly" }];
+  return [
+    { title: `${data.title} - Project Butterfly` },
+    { name: "description", content: data.description },
+  ];
+}
 
 // Custom plugin to handle :::note style directives
 function remarkDirectiveTransformer() {

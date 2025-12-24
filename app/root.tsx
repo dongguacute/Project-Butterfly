@@ -19,6 +19,7 @@ import { Footer } from "./components/footer";
 import { SearchModal } from "./components/search-modal";
 import { NotFound } from "./components/not-found";
 import "./app.css";
+import favicon from "./assets/favicon.ico";
 
 export async function loader() {
   const contentDir = path.join(process.cwd(), "app", "content");
@@ -45,7 +46,15 @@ export async function loader() {
   return { searchIndex };
 }
 
+export function meta() {
+  return [
+    { title: "Project Butterfly" },
+    { name: "description", content: "A beautiful blog project." },
+  ];
+}
+
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", type: "image/x-icon", href: favicon },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
@@ -133,8 +142,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     stack = error.stack;
   }
 
+  const title = message === "404" ? "页面未找到" : "出错了";
+
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 transition-colors duration-500">
+      <title>{title}</title>
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 dark:bg-indigo-500/10 blur-[120px]" />
         <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] rounded-full bg-purple-500/20 dark:bg-purple-500/10 blur-[120px]" />
