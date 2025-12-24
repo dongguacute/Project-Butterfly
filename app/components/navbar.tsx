@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Link } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 import logo from "../assets/logo.webp";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -13,10 +13,25 @@ export function Navbar({
   setIsSearchOpen: (open: boolean) => void 
 }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<HTMLDivElement>(null);
+
+  // Sync theme state with document class on mount and whenever it changes
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark");
+    setTheme(isDark ? "dark" : "light");
+
+    // Listen for class changes on html element (optional but good for sync)
+    const observer = new MutationObserver(() => {
+      const isDarkNow = document.documentElement.classList.contains("dark");
+      setTheme(isDarkNow ? "dark" : "light");
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   useGSAP(() => {
     const nav = navRef.current;
@@ -25,7 +40,9 @@ export function Navbar({
 
     if (!nav || !container) return;
 
-    // 1. Existing Shortening Animation (Scrub based)
+    // Refresh ScrollTrigger on route change
+    ScrollTrigger.refresh();
+
     const shortenTl = gsap.timeline({
       scrollTrigger: {
         trigger: "body",
@@ -38,16 +55,16 @@ export function Navbar({
 
     shortenTl.to(nav, {
       y: -12,
-      width: (window.innerWidth < 768) ? "calc(100% - 3rem)" : "50%",
-      maxWidth: (window.innerWidth < 768) ? "none" : "420px",
+      width: () => (window.innerWidth < 768) ? "calc(100% - 3rem)" : "50%",
+      maxWidth: () => (window.innerWidth < 768) ? "none" : "420px",
       ease: "none",
     }, 0);
 
     shortenTl.to(container, {
-      paddingLeft: (window.innerWidth < 768) ? "1.5rem" : "1rem",
-      paddingRight: (window.innerWidth < 768) ? "1.5rem" : "1rem",
-      paddingTop: (window.innerWidth < 768) ? "0.75rem" : "0.4rem",
-      paddingBottom: (window.innerWidth < 768) ? "0.75rem" : "0.4rem",
+      paddingLeft: () => (window.innerWidth < 768) ? "1.5rem" : "1rem",
+      paddingRight: () => (window.innerWidth < 768) ? "1.5rem" : "1rem",
+      paddingTop: () => (window.innerWidth < 768) ? "0.75rem" : "0.4rem",
+      paddingBottom: () => (window.innerWidth < 768) ? "0.75rem" : "0.4rem",
       backgroundColor: theme === "dark" ? "rgba(15, 23, 42, 0.9)" : "rgba(255, 255, 255, 0.6)",
       boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
       ease: "none",
@@ -61,16 +78,12 @@ export function Navbar({
         ease: "none",
       }, 0);
     }
-  }, { scope: navRef, dependencies: [theme] });
-
-  useEffect(() => {
-    // Sync state with the actual class on html element
-    const isDark = document.documentElement.classList.contains("dark");
-    setTheme(isDark ? "dark" : "light");
-  }, []);
+  }, { scope: navRef, dependencies: [theme, location.pathname] });
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
+    // We don't necessarily need to setTheme here as the MutationObserver will catch it,
+    // but it's faster for UI response.
     setTheme(newTheme);
     
     if (newTheme === "dark") {
@@ -97,20 +110,40 @@ export function Navbar({
 
         {/* Center Links */}
         <div ref={linksRef} className="absolute left-1/2 -translate-x-1/2 hidden sm:flex items-center gap-8">
-          <Link 
+          <NavLink 
             to="/articles" 
-            className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors relative group"
+            className={({ isActive }) => 
+              `text-sm font-medium transition-colors relative group ${
+                isActive ? "text-indigo-600 dark:text-indigo-400" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              }`
+            }
           >
-            文章
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all group-hover:w-full" />
-          </Link>
-          <Link 
+            {({ isActive }) => (
+              <>
+                文章
+                <span className={`absolute -bottom-1 left-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 ${
+                  isActive ? "w-full" : "w-0 group-hover:w-full"
+                }`} />
+              </>
+            )}
+          </NavLink>
+          <NavLink 
             to="/about" 
-            className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors relative group"
+            className={({ isActive }) => 
+              `text-sm font-medium transition-colors relative group ${
+                isActive ? "text-indigo-600 dark:text-indigo-400" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              }`
+            }
           >
-            关于
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all group-hover:w-full" />
-          </Link>
+            {({ isActive }) => (
+              <>
+                关于
+                <span className={`absolute -bottom-1 left-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 ${
+                  isActive ? "w-full" : "w-0 group-hover:w-full"
+                }`} />
+              </>
+            )}
+          </NavLink>
         </div>
 
         {/* Controls */}
