@@ -5,6 +5,7 @@ import path from "node:path";
 export default {
   // Server-side render by default, to enable SPA mode set this to `false`
   ssr: true,
+  // 确保生成的是适合静态托管的路径结构
   async prerender() {
     const paths = ["/", "/articles", "/404"];
     

@@ -22,6 +22,9 @@ import "./app.css";
 import favicon from "./assets/favicon.ico";
 
 export async function loader() {
+  // 只有在服务端/构建阶段运行
+  if (typeof process === "undefined") return { searchIndex: [] };
+  
   const contentDir = path.join(process.cwd(), "app", "content");
   if (!fs.existsSync(contentDir)) {
     return { searchIndex: [] };

@@ -89,6 +89,20 @@ function rehypeCsvToTable() {
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { slug } = params;
+  
+  // Default data for client-side or fallback
+  const defaultData = {
+    title: "加载中...",
+    date: new Date().toISOString(),
+    category: "文章",
+    description: "",
+    contentHtml: "<p>正在加载内容...</p>",
+  };
+
+  if (typeof process === "undefined") {
+    return defaultData;
+  }
+  
   const filePath = path.join(process.cwd(), "app", "content", `${slug}.md`);
 
   if (!fs.existsSync(filePath)) {
@@ -120,7 +134,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   return {
     title: data.title || "Untitled",
-    date: data.date || "",
+    date: data.date || new Date().toISOString(),
     category: data.category || "未分类",
     description: data.description || "",
     contentHtml,

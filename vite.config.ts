@@ -5,7 +5,10 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   ssr: {
-    noExternal: ["gsap"],
+    noExternal: ["gsap", "@gsap/react"],
+  },
+  build: {
+    assetsInlineLimit: 0, // 确保静态资源路径清晰
   },
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
 });
