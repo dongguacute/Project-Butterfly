@@ -295,17 +295,6 @@ export function Navbar({
         >
           <div className="flex flex-col gap-2">
             <NavLink 
-              to="/" 
-              className={({ isActive }) => `
-                px-6 py-4 rounded-2xl text-lg font-bold transition-all
-                ${isActive 
-                  ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/25" 
-                  : "text-gray-600 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400"}
-              `}
-            >
-              首页
-            </NavLink>
-            <NavLink 
               to="/articles" 
               className={({ isActive }) => `
                 px-6 py-4 rounded-2xl text-lg font-bold transition-all

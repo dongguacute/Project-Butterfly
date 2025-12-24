@@ -26,15 +26,8 @@ export function Footer() {
               </p>
             </div>
 
-            {/* Right side: Links/Info */}
+            {/* Right side: Info */}
             <div className="flex flex-col md:items-end gap-8">
-              <nav className="flex flex-wrap gap-x-8 gap-y-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-                <Link to="/" className="hover:text-gray-900 dark:hover:text-white transition-colors">首页</Link>
-                <a href="#" className="hover:text-gray-900 dark:hover:text-white transition-colors">关于我们</a>
-                <a href="#" className="hover:text-gray-900 dark:hover:text-white transition-colors">联系方式</a>
-                <a href="#" className="hover:text-gray-900 dark:hover:text-white transition-colors">隐私政策</a>
-              </nav>
-              
               <div className="flex flex-col md:items-end gap-2">
                 <p className="text-sm text-gray-400 dark:text-gray-500" suppressHydrationWarning>
                   © {currentYear} Project Butterfly. All rights reserved.
