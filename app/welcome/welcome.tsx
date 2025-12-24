@@ -1,25 +1,34 @@
-import logoDark from "./logo-dark.svg";
-import logoLight from "./logo-light.svg";
+import logo from "../assets/logo.webp";
 
 export function Welcome() {
   return (
-    <main className="flex items-center justify-center pt-32 pb-4 min-h-[200vh]">
-      <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
-        <header className="flex flex-col items-center gap-9">
-          <div className="w-[500px] max-w-[100vw] p-4">
+    <main className="flex flex-col items-center justify-center min-h-[200vh]">
+      <div className="flex-1 flex flex-col items-center justify-center gap-10 min-h-screen text-center pb-64">
+        <header className="flex flex-col items-center gap-8 px-4">
+          <div className="w-48 h-48 md:w-64 md:h-64 animate-float">
             <img
-              src={logoLight}
-              alt="React Router"
-              className="block w-full dark:hidden"
-            />
-            <img
-              src={logoDark}
-              alt="React Router"
-              className="hidden w-full dark:block"
+              src={logo}
+              alt="Project Butterfly Logo"
+              className="w-full h-full object-contain drop-shadow-2xl"
             />
           </div>
+          <div className="space-y-4">
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white tracking-tighter">
+              Project Butterfly
+            </h1>
+            <div className="space-y-2">
+              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 font-medium tracking-wide">
+                一本美丽蜕变日记
+              </p>
+              <p className="text-lg text-gray-500 dark:text-gray-500 max-w-md mx-auto leading-relaxed">
+                希望每个人都能成为自己想成为的自己
+              </p>
+            </div>
+          </div>
         </header>
-        <div className="max-w-[300px] w-full space-y-6 px-4">
+
+        <div className="max-w-[400px] w-full space-y-6 px-4">
+          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 dark:via-white/10 to-transparent" />
           <nav className="rounded-3xl border border-gray-200 p-6 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-sm space-y-4 transition-colors duration-500">
             <p className="leading-6 text-gray-700 dark:text-gray-300 text-center">
               What&apos;s next?

@@ -7,6 +7,15 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
 html,
 body {
   @apply bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-500;
