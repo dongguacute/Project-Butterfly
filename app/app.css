@@ -24,6 +24,31 @@
   @apply no-underline border-b-2 border-indigo-500/40 pb-0.5 transition-colors hover:border-indigo-500;
 }
 
+/* CSV Table Styling */
+.csv-table-wrapper {
+  @apply my-8 overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 shadow-xl shadow-indigo-500/5;
+}
+
+.csv-table {
+  @apply w-full border-collapse bg-white/50 dark:bg-white/5 backdrop-blur-sm text-sm text-left;
+}
+
+.csv-table th {
+  @apply bg-indigo-500/10 dark:bg-indigo-500/20 px-4 py-3 font-bold text-indigo-700 dark:text-indigo-300 border-b border-gray-200 dark:border-white/10;
+}
+
+.csv-table td {
+  @apply px-4 py-3 text-gray-600 dark:text-gray-300 border-b border-gray-100 dark:border-white/5;
+}
+
+.csv-table tr:last-child td {
+  @apply border-b-0;
+}
+
+.csv-table tr:hover td {
+  @apply bg-indigo-50/50 dark:bg-indigo-500/5 transition-colors;
+}
+
 /* Alert/Callout Widgets */
 .prose .note,
 .prose .warning,

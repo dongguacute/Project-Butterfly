@@ -12,6 +12,7 @@ import rehypeRaw from "rehype-raw";
 import rehypeHighlight from "rehype-highlight";
 import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
+import { h } from "hastscript";
 import parse from "html-react-parser";
 import gsap from "gsap";
 import type { LoaderFunctionArgs } from "react-router";
@@ -41,6 +42,42 @@ function remarkDirectiveTransformer() {
   };
 }
 
+// Custom plugin to transform CSV code blocks into HTML tables
+function rehypeCsvToTable() {
+  return (tree: any) => {
+    visit(tree, 'element', (node, index, parent) => {
+      if (
+        node.tagName === 'pre' &&
+        node.children.length === 1 &&
+        node.children[0].tagName === 'code' &&
+        node.children[0].properties?.className?.includes('language-csv')
+      ) {
+        const csvContent = node.children[0].children[0].value;
+        const rows = csvContent.trim().split('\n').map((row: string) => 
+          row.split(',').map((cell: string) => cell.trim())
+        );
+
+        if (rows.length === 0) return;
+
+        const table = h('div', { className: 'csv-table-wrapper' }, [
+          h('table', { className: 'csv-table' }, [
+            h('thead', [
+              h('tr', rows[0].map((cell: string) => h('th', cell)))
+            ]),
+            h('tbody', rows.slice(1).map((row: string[]) => 
+              h('tr', row.map((cell: string) => h('td', cell)))
+            ))
+          ])
+        ]);
+
+        if (parent && typeof index === 'number') {
+          parent.children[index] = table;
+        }
+      }
+    });
+  };
+}
+
 export async function loader({ params }: LoaderFunctionArgs) {
   const { slug } = params;
   const filePath = path.join(process.cwd(), "app", "content", `${slug}.md`);
@@ -61,6 +98,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     .use(remarkDirectiveTransformer)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
+    .use(rehypeCsvToTable)
     .use(rehypeHighlight, { 
       detect: true,
       ignoreMissing: true,

@@ -45,7 +45,7 @@ export function Navbar({
 
     const shortenTl = gsap.timeline({
       scrollTrigger: {
-        trigger: "body",
+        trigger: typeof document !== "undefined" ? document.body : null,
         start: "top top",
         end: "+=200",
         scrub: 1,
@@ -78,7 +78,7 @@ export function Navbar({
         ease: "none",
       }, 0);
     }
-  }, { scope: navRef, dependencies: [theme, location.pathname] });
+  }, { dependencies: [theme, location.pathname] });
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
