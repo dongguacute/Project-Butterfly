@@ -194,23 +194,15 @@ export function Navbar({
               </>
             )}
           </NavLink>
-          <NavLink 
-            to="/archive" 
-            className={({ isActive }) => 
-              `text-sm font-medium transition-colors relative group ${
-                isActive ? "text-indigo-600 dark:text-indigo-400" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`
-            }
+          <a 
+            href="https://github.com/dongguacute" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium transition-colors relative group text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           >
-            {({ isActive }) => (
-              <>
-                归档
-                <span className={`absolute -bottom-1 left-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 ${
-                  isActive ? "w-full" : "w-0 group-hover:w-full"
-                }`} />
-              </>
-            )}
-          </NavLink>
+            关于我
+            <span className="absolute -bottom-1 left-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 w-0 group-hover:w-full" />
+          </a>
         </div>
 
         {/* Controls */}
@@ -305,17 +297,14 @@ export function Navbar({
             >
               文章
             </NavLink>
-            <NavLink 
-              to="/archive" 
-              className={({ isActive }) => `
-                px-6 py-4 rounded-2xl text-lg font-bold transition-all
-                ${isActive 
-                  ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/25" 
-                  : "text-gray-600 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400"}
-              `}
+            <a 
+              href="https://github.com/dongguacute" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-4 rounded-2xl text-lg font-bold transition-all text-gray-600 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400"
             >
-              归档
-            </NavLink>
+              关于我
+            </a>
           </div>
         </div>
       )}
