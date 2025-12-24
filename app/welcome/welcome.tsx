@@ -32,7 +32,7 @@ export function Welcome() {
           <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-200 dark:via-white/10 to-transparent" />
           
           <Link
-            to="/read"
+            to="/articles"
             className="group relative flex items-center justify-center w-full py-4 px-8 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 active:scale-98 overflow-hidden"
           >
             <span className="text-lg font-medium tracking-wide">

@@ -7,11 +7,16 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function Navbar() {
+export function Navbar({ 
+  setIsSearchOpen 
+}: { 
+  setIsSearchOpen: (open: boolean) => void 
+}) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const navRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const nav = navRef.current;
@@ -108,11 +113,31 @@ export function Navbar() {
           </Link>
         </div>
 
-        <button
-          onClick={toggleTheme}
-          className="relative p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors group overflow-hidden"
-          aria-label="Toggle theme"
-        >
+        {/* Controls */}
+        <div ref={controlsRef} className="flex items-center gap-2">
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-all group border border-transparent hover:border-black/10 dark:hover:border-white/10"
+            aria-label="Search"
+          >
+            <svg 
+              className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors hidden sm:inline-block">
+              搜索...
+            </span>
+          </button>
+
+          <button
+            onClick={toggleTheme}
+            className="relative p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors group overflow-hidden"
+            aria-label="Toggle theme"
+          >
           <div className="relative w-6 h-6">
             {/* Sun Icon */}
             <svg
@@ -148,6 +173,7 @@ export function Navbar() {
             </svg>
           </div>
         </button>
+      </div>
       </div>
     </nav>
   );

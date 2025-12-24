@@ -1,3 +1,4 @@
+import React from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -5,12 +6,42 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
+import fs from "fs";
+import path from "path";
+import matter from "gray-matter";
 
 import type { Route } from "./+types/root";
 import { Navbar } from "./components/navbar";
 import { Footer } from "./components/footer";
+import { SearchModal } from "./components/search-modal";
 import "./app.css";
+
+export async function loader() {
+  const contentDir = path.join(process.cwd(), "app", "content");
+  if (!fs.existsSync(contentDir)) {
+    return { searchIndex: [] };
+  }
+
+  const filenames = fs.readdirSync(contentDir);
+  const searchIndex = filenames
+    .filter((filename) => filename.endsWith(".md"))
+    .map((filename) => {
+      const filePath = path.join(contentDir, filename);
+      const fileContent = fs.readFileSync(filePath, "utf-8");
+      const { data, content } = matter(fileContent);
+      return {
+        id: filename.replace(/\.md$/, ""),
+        title: data.title || "Untitled",
+        content: content, // Keep full content for client-side search
+        category: data.category || "未分类",
+        description: data.description || "",
+      };
+    });
+
+  return { searchIndex };
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -26,6 +57,9 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useLoaderData<typeof loader>() || { searchIndex: [] };
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+
   return (
     <html lang="en">
       <head>
@@ -49,14 +83,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body>
-        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-          <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 dark:bg-indigo-500/10 blur-[120px] transition-colors duration-1000" />
-          <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] rounded-full bg-purple-500/20 dark:bg-purple-500/10 blur-[120px] transition-colors duration-1000" />
-          <div className="absolute -bottom-[10%] left-[20%] w-[30%] h-[30%] rounded-full bg-pink-500/20 dark:bg-pink-500/10 blur-[120px] transition-colors duration-1000" />
+        <div 
+          id="main-layout" 
+          className="transition-[filter] duration-500"
+          style={{ filter: isSearchOpen ? "blur(12px)" : "none" }}
+        >
+          <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+            <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 dark:bg-indigo-500/10 blur-[120px] transition-colors duration-1000" />
+            <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] rounded-full bg-purple-500/20 dark:bg-purple-500/10 blur-[120px] transition-colors duration-1000" />
+            <div className="absolute -bottom-[10%] left-[20%] w-[30%] h-[30%] rounded-full bg-pink-500/20 dark:bg-pink-500/10 blur-[120px] transition-colors duration-1000" />
+          </div>
+          <Navbar 
+            setIsSearchOpen={setIsSearchOpen}
+          />
+          {children}
+          <Footer />
         </div>
-        <Navbar />
-        {children}
-        <Footer />
+        <SearchModal 
+          isOpen={isSearchOpen} 
+          onClose={() => setIsSearchOpen(false)} 
+          searchIndex={data.searchIndex}
+        />
         <ScrollRestoration />
         <Scripts />
       </body>
