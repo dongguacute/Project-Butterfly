@@ -2,10 +2,15 @@ import { useState, useEffect } from 'react';
 import gsap from 'gsap';
 
 export function ClockWidget() {
-  const [time, setTime] = useState(new Date());
-  const [timezone, setTimezone] = useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const [mounted, setMounted] = useState(false);
+  const [time, setTime] = useState(new Date(0));
+  const [timezone, setTimezone] = useState<string>("UTC");
 
   useEffect(() => {
+    setMounted(true);
+    setTime(new Date());
+    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+
     const timer = setInterval(() => setTime(new Date()), 1000);
     
     const handleTimezoneChange = (e: CustomEvent<{ timezone: string }>) => {
@@ -41,6 +46,14 @@ export function ClockWidget() {
       timeZone: timezone
     });
   };
+
+  if (!mounted) {
+    return (
+      <div className="p-6 rounded-3xl bg-white/50 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl shadow-indigo-500/5 h-[160px] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 rounded-3xl bg-white/50 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl shadow-indigo-500/5 group hover:scale-[1.02] transition-transform duration-300">

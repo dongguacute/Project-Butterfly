@@ -93,7 +93,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
   // Default data for client-side or fallback
   const defaultData = {
     title: "加载中...",
-    date: new Date().toISOString(),
+    date: "2024-01-01",
     category: "文章",
     description: "",
     contentHtml: "<p>正在加载内容...</p>",
@@ -143,6 +143,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 export default function ArticleDetail() {
   const { title, date, category, contentHtml, description } = useLoaderData<typeof loader>();
+  const [mounted, setMounted] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [currentUrl, setCurrentUrl] = useState("");
@@ -155,6 +156,7 @@ export default function ArticleDetail() {
   const previewImgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
+    setMounted(true);
     setCurrentUrl(window.location.href);
     const handleScroll = () => {
       const winScroll = document.documentElement.scrollTop;
@@ -365,7 +367,9 @@ export default function ArticleDetail() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  {new Date(date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  <span suppressHydrationWarning>
+                    {new Date(date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -431,7 +435,7 @@ export default function ArticleDetail() {
             <div className="space-y-4">
               <div>
                 <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">发布时间</h4>
-                <p className="text-gray-700 dark:text-gray-300">
+                <p className="text-gray-700 dark:text-gray-300" suppressHydrationWarning>
                   {new Date(date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
                 </p>
               </div>

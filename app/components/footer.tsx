@@ -36,7 +36,7 @@ export function Footer() {
               </nav>
               
               <div className="flex flex-col md:items-end gap-2">
-                <p className="text-sm text-gray-400 dark:text-gray-500">
+                <p className="text-sm text-gray-400 dark:text-gray-500" suppressHydrationWarning>
                   © {currentYear} Project Butterfly. All rights reserved.
                 </p>
                 <div className="flex gap-4">
