@@ -3,10 +3,23 @@ import gsap from 'gsap';
 
 export function ClockWidget() {
   const [time, setTime] = useState(new Date());
+  const [timezone, setTimezone] = useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    
+    const handleTimezoneChange = (e: CustomEvent<{ timezone: string }>) => {
+      if (e.detail.timezone) {
+        setTimezone(e.detail.timezone);
+      }
+    };
+
+    window.addEventListener('city-timezone-change' as any, handleTimezoneChange);
+    
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('city-timezone-change' as any, handleTimezoneChange);
+    };
   }, []);
 
   const formatTime = (date: Date) => {
@@ -14,7 +27,8 @@ export function ClockWidget() {
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
+      timeZone: timezone
     });
   };
 
@@ -23,17 +37,23 @@ export function ClockWidget() {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-      weekday: 'long'
+      weekday: 'long',
+      timeZone: timezone
     });
   };
 
   return (
     <div className="p-6 rounded-3xl bg-white/50 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl shadow-indigo-500/5 group hover:scale-[1.02] transition-transform duration-300">
-      <div className="flex items-center gap-3 mb-4 text-indigo-600 dark:text-indigo-400">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span className="text-sm font-bold uppercase tracking-wider">当前时间</span>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="text-sm font-bold uppercase tracking-wider">当前时间</span>
+        </div>
+        <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-full">
+          {timezone.split('/').pop()?.replace('_', ' ')}
+        </span>
       </div>
       <div className="text-4xl font-black text-gray-900 dark:text-white mb-2 font-mono tracking-tighter">
         {formatTime(time)}
@@ -102,6 +122,14 @@ export function WeatherWidget() {
         loading: false,
         error: null
       });
+
+      // 广播时区更改事件给时间模块
+      if (data.timezone) {
+        window.dispatchEvent(new CustomEvent('city-timezone-change', { 
+          detail: { timezone: data.timezone } 
+        }));
+      }
+
       // 如果搜索的是拼音或不规范名称，更新为官方名称
       if (selectedCity !== cityName) setSelectedCity(cityName);
     } catch (err) {
