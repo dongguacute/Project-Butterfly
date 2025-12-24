@@ -11,35 +11,34 @@ export function Navbar() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const navRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const nav = navRef.current;
     const container = containerRef.current;
+    const links = linksRef.current;
 
     if (!nav || !container) return;
 
-    gsap.to(nav, {
+    // 1. Existing Shortening Animation (Scrub based)
+    const shortenTl = gsap.timeline({
       scrollTrigger: {
         trigger: "body",
         start: "top top",
         end: "+=200",
         scrub: 1,
         invalidateOnRefresh: true,
-      },
+      }
+    });
+
+    shortenTl.to(nav, {
       y: -12,
       width: (window.innerWidth < 768) ? "calc(100% - 3rem)" : "50%",
       maxWidth: (window.innerWidth < 768) ? "none" : "420px",
       ease: "none",
-    });
+    }, 0);
 
-    gsap.to(container, {
-      scrollTrigger: {
-        trigger: "body",
-        start: "top top",
-        end: "+=200",
-        scrub: 1,
-        invalidateOnRefresh: true,
-      },
+    shortenTl.to(container, {
       paddingLeft: (window.innerWidth < 768) ? "1.5rem" : "1rem",
       paddingRight: (window.innerWidth < 768) ? "1.5rem" : "1rem",
       paddingTop: (window.innerWidth < 768) ? "0.75rem" : "0.4rem",
@@ -47,7 +46,16 @@ export function Navbar() {
       backgroundColor: theme === "dark" ? "rgba(15, 23, 42, 0.9)" : "rgba(255, 255, 255, 0.6)",
       boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
       ease: "none",
-    });
+    }, 0);
+
+    if (links) {
+      shortenTl.to(links, {
+        opacity: 0,
+        scale: 0.8,
+        pointerEvents: "none",
+        ease: "none",
+      }, 0);
+    }
   }, { scope: navRef, dependencies: [theme] });
 
   useEffect(() => {
@@ -81,6 +89,24 @@ export function Navbar() {
             Project Butterfly
           </span>
         </Link>
+
+        {/* Center Links */}
+        <div ref={linksRef} className="absolute left-1/2 -translate-x-1/2 hidden sm:flex items-center gap-8">
+          <Link 
+            to="/articles" 
+            className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors relative group"
+          >
+            文章
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all group-hover:w-full" />
+          </Link>
+          <Link 
+            to="/about" 
+            className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors relative group"
+          >
+            关于
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all group-hover:w-full" />
+          </Link>
+        </div>
 
         <button
           onClick={toggleTheme}
