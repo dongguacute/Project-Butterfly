@@ -4,11 +4,41 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { remark } from "remark";
-import html from "remark-html";
+import remarkHtml from "remark-html";
 import gfm from "remark-gfm";
+import remarkDirective from "remark-directive";
+import remarkRehype from "remark-rehype";
+import rehypeHighlight from "rehype-highlight";
+import rehypeStringify from "rehype-stringify";
+import { visit } from "unist-util-visit";
 import parse from "html-react-parser";
 import gsap from "gsap";
 import type { LoaderFunctionArgs } from "react-router";
+
+// Add highlight.js theme
+import "highlight.js/styles/github-dark.css";
+
+// Custom plugin to handle :::note style directives
+function remarkDirectiveTransformer() {
+  return (tree: any) => {
+    visit(tree, (node) => {
+      if (
+        node.type === 'containerDirective' ||
+        node.type === 'leafDirective' ||
+        node.type === 'textDirective'
+      ) {
+        const data = node.data || (node.data = {});
+        const tagName = node.type === 'textDirective' ? 'span' : 'div';
+
+        data.hName = tagName;
+        data.hProperties = {
+          ...(data.hProperties || {}),
+          className: [node.name],
+        };
+      }
+    });
+  };
+}
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { slug } = params;
@@ -26,7 +56,15 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   const processedContent = await remark()
     .use(gfm)
-    .use(html)
+    .use(remarkDirective)
+    .use(remarkDirectiveTransformer)
+    .use(remarkRehype)
+    .use(rehypeHighlight, { 
+      detect: true,
+      ignoreMissing: true,
+      aliases: { 'csv': 'plaintext' }
+    })
+    .use(rehypeStringify)
     .process(cleanContent);
   
   const contentHtml = processedContent.toString();

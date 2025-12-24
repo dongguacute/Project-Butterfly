@@ -6,6 +6,62 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+/* Fix for highlight.js background in prose */
+.prose pre {
+  padding: 0 !important;
+  background-color: transparent !important;
+}
+
+.prose pre code {
+  padding: 1.5rem !important;
+  display: block;
+  background-color: #0d1117 !important; /* GitHub Dark color */
+  border-radius: 1rem;
+}
+
+/* Markdown Directives (Alerts/Callouts) */
+.prose .note,
+.prose .warning,
+.prose .error,
+.prose .info,
+.prose .tip {
+  @apply my-8 p-6 rounded-2xl border-l-4 shadow-sm;
+}
+
+.prose .note {
+  @apply bg-slate-50 dark:bg-slate-500/5 border-slate-400 text-slate-800 dark:text-slate-200;
+}
+
+.prose .info {
+  @apply bg-blue-50 dark:bg-blue-500/5 border-blue-400 text-blue-800 dark:text-blue-200;
+}
+
+.prose .tip {
+  @apply bg-emerald-50 dark:bg-emerald-500/5 border-emerald-400 text-emerald-800 dark:text-emerald-200;
+}
+
+.prose .warning {
+  @apply bg-amber-50 dark:bg-amber-500/5 border-amber-400 text-amber-800 dark:text-amber-200;
+}
+
+.prose .error {
+  @apply bg-rose-50 dark:bg-rose-500/5 border-rose-400 text-rose-800 dark:text-rose-200;
+}
+
+.prose .note::before,
+.prose .info::before,
+.prose .tip::before,
+.prose .warning::before,
+.prose .error::before {
+  @apply font-bold block mb-2 uppercase tracking-wider text-xs;
+}
+
+.prose .note::before { content: "📝 Note"; }
+.prose .info::before { content: "ℹ️ Info"; }
+.prose .tip::before { content: "💡 Tip"; }
+.prose .warning::before { content: "⚠️ Warning"; }
+.prose .error::before { content: "🚫 Error"; }
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @keyframes float {
