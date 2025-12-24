@@ -43,8 +43,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
 export default function ArticleDetail() {
   const { title, date, category, contentHtml, description } = useLoaderData<typeof loader>();
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const articleRef = useRef<HTMLElement>(null);
+  const backToTopRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,6 +54,9 @@ export default function ArticleDetail() {
       const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       const scrolled = (winScroll / height) * 100;
       setScrollProgress(scrolled);
+      
+      // Show button after scrolling 400px
+      setShowBackToTop(winScroll > 400);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -70,6 +75,38 @@ export default function ArticleDetail() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Animate button visibility
+  useEffect(() => {
+    if (showBackToTop) {
+      gsap.to(backToTopRef.current, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.4,
+        ease: "back.out(1.7)",
+        display: "flex"
+      });
+    } else {
+      gsap.to(backToTopRef.current, {
+        opacity: 0,
+        y: 20,
+        scale: 0.8,
+        duration: 0.3,
+        ease: "power2.in",
+        onComplete: () => {
+          if (backToTopRef.current) backToTopRef.current.style.display = "none";
+        }
+      });
+    }
+  }, [showBackToTop]);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+
   return (
     <main className="min-h-screen pt-32 pb-24 px-6 relative overflow-hidden">
       {/* Background Orbs */}
@@ -87,6 +124,25 @@ export default function ArticleDetail() {
       </div>
 
       <div className="max-w-4xl mx-auto">
+        {/* Back to Top Button */}
+        <button
+          ref={backToTopRef}
+          onClick={scrollToTop}
+          className="fixed bottom-12 right-12 z-[70] hidden items-center justify-center w-14 h-14 rounded-full bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/40 dark:border-white/10 hover:scale-110 active:scale-95 transition-transform group"
+          aria-label="Back to top"
+          style={{ opacity: 0, transform: "translateY(20px) scale(0.8)" }}
+        >
+          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
+          <svg 
+            className="w-6 h-6 relative z-10 group-hover:-translate-y-1 transition-transform" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </button>
+
         {/* Navigation & Actions */}
         <div className="flex items-center justify-between mb-12">
           <Link 
