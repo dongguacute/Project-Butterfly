@@ -66,6 +66,25 @@ export function Navbar({
     }
   }, { dependencies: [isMenuOpen] });
 
+  // Refresh ScrollTrigger on route change, theme change, and window resize
+  useEffect(() => {
+    const handleResize = () => {
+      ScrollTrigger.refresh();
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Small delay to ensure DOM is updated
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timer);
+    };
+  }, [location.pathname, theme]);
+
   useGSAP(() => {
     const nav = navRef.current;
     const container = containerRef.current;
@@ -73,18 +92,20 @@ export function Navbar({
 
     if (!nav || !container) return;
 
-    // Refresh ScrollTrigger on route change
-    ScrollTrigger.refresh();
-
+    // Create the timeline
     const shortenTl = gsap.timeline({
       scrollTrigger: {
-        trigger: "body",
+        trigger: document.documentElement, // Use the DOM element directly
         start: "top top",
         end: "+=200",
-        scrub: 1,
+        scrub: 0.5,
         invalidateOnRefresh: true,
       }
     });
+
+    // Reset initial states to ensure they are clickable
+    gsap.set(nav, { y: 0, width: "calc(100% - 3rem)", maxWidth: "1024px" });
+    if (links) gsap.set(links, { autoAlpha: 1, scale: 1 });
 
     shortenTl.to(nav, {
       y: -12,
@@ -105,13 +126,17 @@ export function Navbar({
 
     if (links) {
       shortenTl.to(links, {
-        opacity: 0,
+        autoAlpha: 0,
         scale: 0.8,
-        pointerEvents: "none",
         ease: "none",
       }, 0);
     }
-  }, { dependencies: [theme, location.pathname] });
+
+    return () => {
+      if (shortenTl.scrollTrigger) shortenTl.scrollTrigger.kill();
+      shortenTl.kill();
+    };
+  }, { dependencies: [theme, location.pathname] }); // Removed scope: navRef
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -129,8 +154,14 @@ export function Navbar({
   };
 
   return (
-    <nav ref={navRef} className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-3rem)] max-w-5xl">
-      <div ref={containerRef} className="flex items-center justify-between px-6 py-3 bg-white/20 dark:bg-white/5 backdrop-blur-md border border-white/30 dark:border-white/10 rounded-full shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] ring-1 ring-white/20">
+    <nav 
+      ref={navRef} 
+      className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-3rem)] max-w-5xl pointer-events-none"
+    >
+      <div 
+        ref={containerRef} 
+        className="flex items-center justify-between px-6 py-3 bg-white/20 dark:bg-white/5 backdrop-blur-md border border-white/30 dark:border-white/10 rounded-full shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] ring-1 ring-white/20 pointer-events-auto"
+      >
         <Link 
           to="/" 
           className="flex items-center gap-3 hover:opacity-80 transition-opacity active:scale-95 duration-200 relative z-[60]"
@@ -142,7 +173,10 @@ export function Navbar({
         </Link>
 
         {/* Center Links (Desktop) */}
-        <div ref={linksRef} className="absolute left-1/2 -translate-x-1/2 hidden sm:flex items-center gap-8">
+        <div 
+          ref={linksRef} 
+          className="absolute left-1/2 -translate-x-1/2 hidden sm:flex items-center gap-8 z-10"
+        >
           <NavLink 
             to="/articles" 
             className={({ isActive }) => 

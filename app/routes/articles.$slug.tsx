@@ -418,13 +418,15 @@ export default function ArticleDetail() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          <img 
-            ref={previewImgRef}
-            src={previewImage || ''} 
-            alt="Preview" 
-            className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
+          {previewImage && (
+            <img 
+              ref={previewImgRef}
+              src={previewImage} 
+              alt="Preview" 
+              className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
         </div>
 
         {/* Bottom Actions */}
