@@ -82,11 +82,13 @@ export default function ArticleDetail() {
   const { title, date, category, contentHtml, description } = useLoaderData<typeof loader>();
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState("");
   const headerRef = useRef<HTMLDivElement>(null);
   const articleRef = useRef<HTMLElement>(null);
   const backToTopRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    setCurrentUrl(window.location.href);
     const handleScroll = () => {
       const winScroll = document.documentElement.scrollTop;
       const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -264,6 +266,41 @@ export default function ArticleDetail() {
             </div>
           </div>
         </article>
+
+        {/* Article Copyright & Meta Card */}
+        <section className="mt-12 bg-gray-50/50 dark:bg-white/5 backdrop-blur-md rounded-3xl border border-gray-200/50 dark:border-white/10 p-8 overflow-hidden relative group">
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+            <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.15-5.36c-.46.36-1.01.54-1.65.54-1.07 0-1.92-.36-2.54-1.07-.62-.71-.93-1.68-.93-2.91 0-1.23.31-2.2.93-2.91.62-.71 1.47-1.07 2.54-1.07.64 0 1.19.18 1.65.54.46.36.78.87.96 1.53h-1.04c-.16-.38-.4-.68-.72-.9-.32-.22-.7-.33-1.15-.33-.74 0-1.31.25-1.72.75-.41.5-.62 1.25-.62 2.25s.2 1.75.61 2.25c.41.5.98.75 1.73.75.45 0 .83-.11 1.15-.33.32-.22.56-.52.72-.9h1.04c-.18.66-.5 1.17-.96 1.53zm5.3 0c-.46.36-1.01.54-1.65.54-1.07 0-1.92-.36-2.54-1.07-.62-.71-.93-1.68-.93-2.91 0-1.23.31-2.2.93-2.91.62-.71 1.47-1.07 2.54-1.07.64 0 1.19.18 1.65.54.46.36.78.87.96 1.53h-1.04c-.16-.38-.4-.68-.72-.9-.32-.22-.7-.33-1.15-.33-.74 0-1.31.25-1.72.75-.41.5-.62 1.25-.62 2.25s.2 1.75.61 2.25c.41.5.98.75 1.73.75.45 0 .83-.11 1.15-.33.32-.22.56-.52.72-.9h1.04c-.18.66-.5 1.17-.96 1.53z" />
+            </svg>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">发布时间</h4>
+                <p className="text-gray-700 dark:text-gray-300">
+                  {new Date(date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">本文链接</h4>
+                <p className="text-indigo-600 dark:text-indigo-400 text-sm break-all font-mono">
+                  {currentUrl}
+                </p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">版权声明</h4>
+                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                  本文章采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <span className="font-bold text-gray-900 dark:text-white">Project Butterfly</span>。
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Bottom Actions */}
         <footer className="mt-20 pt-16 border-t border-gray-100 dark:border-white/5 text-center">
