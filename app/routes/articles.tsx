@@ -46,6 +46,10 @@ function calculateReadTime(content: string) {
 
 export async function loader() {
   const contentDir = path.join(process.cwd(), "app", "content");
+  if (!fs.existsSync(contentDir)) {
+    return { articles: [], categories: [] };
+  }
+
   const filenames = fs.readdirSync(contentDir);
 
   const articles = filenames
@@ -71,6 +75,12 @@ export async function loader() {
 
   return { articles, categories };
 }
+
+export const clientLoader = async ({ serverLoader }: any) => {
+  return await serverLoader();
+};
+
+clientLoader.hydrate = true;
 
 export default function ArticlesPage() {
   const { articles, categories } = useLoaderData<typeof loader>();

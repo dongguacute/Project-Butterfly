@@ -3,9 +3,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 export default {
-  // Server-side render by default, to enable SPA mode set this to `false`
-  ssr: true,
-  // 确保生成的是适合静态托管的路径结构
+  // 关键：设置为 false 启用纯 SPA 模式，避免静态部署时的 JSON 数据请求问题
+  ssr: false,
+  // 依然保留预渲染，确保 SEO 和首屏速度
   async prerender() {
     const paths = ["/", "/articles", "/404"];
     
