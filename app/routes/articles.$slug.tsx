@@ -124,6 +124,7 @@ export default function ArticleDetail() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [currentUrl, setCurrentUrl] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const articleRef = useRef<HTMLElement>(null);
   const backToTopRef = useRef<HTMLButtonElement>(null);
@@ -235,6 +236,16 @@ export default function ArticleDetail() {
     });
   };
 
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(currentUrl);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
   return (
     <main className="min-h-screen pt-32 pb-24 px-6 relative overflow-hidden">
       {/* Background Orbs */}
@@ -290,10 +301,29 @@ export default function ArticleDetail() {
               
               <div className="flex gap-4">
                 {/* Social Share Placeholder */}
-                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-white/5 shadow-sm border border-gray-100 dark:border-white/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                  </svg>
+                <button 
+                  onClick={copyToClipboard}
+                  className={`group relative w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-white/5 shadow-sm border border-gray-100 dark:border-white/10 transition-all ${
+                    isCopied ? "text-emerald-500 border-emerald-500/50" : "hover:text-indigo-600 dark:hover:text-indigo-400"
+                  }`}
+                  title="复制链接"
+                >
+                  {isCopied ? (
+                    <svg className="w-4 h-4 animate-in zoom-in duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                  )}
+                  
+                  {/* Tooltip */}
+                  <span className={`absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-[10px] rounded transition-all pointer-events-none ${
+                    isCopied ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+                  }`}>
+                    已复制!
+                  </span>
                 </button>
               </div>
             </div>
