@@ -87,7 +87,8 @@ renderArticle(myArticle);
 - [x] 优化 SEO 标签
 
 ---
-## 7. 提示小组件 (Callouts / Alerts)
+
+## 5. 提示小组件 (Callouts / Alerts)
 
 本站支持通过 Markdown 指令语法（Directives）添加各种类型的提示框：
 
@@ -113,9 +114,9 @@ renderArticle(myArticle);
 
 ---
 
-## 8. CSV 与表格增强
+## 6. CSV 与表格增强
 
-除了标准的 Markdown 表格，你现在还可以直接插入 CSV 代码块并获得基础高亮支持：
+除了标准的 Markdown 表格，你现在还可以直接插入 CSV 代码块，它将自动渲染为美观的交互式表格：
 
 ```csv
 ID,Name,Role,Status
@@ -126,14 +127,14 @@ ID,Name,Role,Status
 
 ---
 
-## 9. 脚注与链接
+## 7. 脚注与链接
 
 你可以添加一个链接到 [Project Butterfly 首页](/)。
 或者添加一个脚注：这是一个带有脚注的句子[^1]。
 
 ---
 
-## 6. 装饰性元素
+## 8. 装饰性元素
 
 使用分割线来区分不同的章节：
 

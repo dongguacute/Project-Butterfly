@@ -78,7 +78,7 @@ export function Navbar({
 
     const shortenTl = gsap.timeline({
       scrollTrigger: {
-        trigger: typeof document !== "undefined" ? document.body : null,
+        trigger: "body",
         start: "top top",
         end: "+=200",
         scrub: 1,

@@ -92,6 +92,11 @@
 .prose .warning::before { content: "⚠️ Warning"; }
 .prose .error::before { content: "🚫 Error"; }
 
+/* Image styles */
+.prose img {
+  @apply rounded-2xl cursor-zoom-in transition-transform hover:scale-[1.01] active:scale-95 duration-300;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @keyframes float {

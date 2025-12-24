@@ -4,7 +4,6 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { remark } from "remark";
-import remarkHtml from "remark-html";
 import gfm from "remark-gfm";
 import remarkDirective from "remark-directive";
 import remarkRehype from "remark-rehype";
@@ -16,6 +15,7 @@ import { h } from "hastscript";
 import parse from "html-react-parser";
 import gsap from "gsap";
 import type { LoaderFunctionArgs } from "react-router";
+import { ClockWidget, WeatherWidget } from "~/components/widgets";
 
 // Add highlight.js theme
 import "highlight.js/styles/github-dark.css";
@@ -34,7 +34,7 @@ function remarkDirectiveTransformer() {
 
         data.hName = tagName;
         data.hProperties = {
-          ...(data.hProperties || {}),
+          ...data.hProperties,
           className: [node.name],
         };
       }
@@ -123,9 +123,12 @@ export default function ArticleDetail() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [currentUrl, setCurrentUrl] = useState("");
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const articleRef = useRef<HTMLElement>(null);
   const backToTopRef = useRef<HTMLButtonElement>(null);
+  const previewOverlayRef = useRef<HTMLDivElement>(null);
+  const previewImgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     setCurrentUrl(window.location.href);
@@ -152,8 +155,53 @@ export default function ArticleDetail() {
       { opacity: 1, y: 0, duration: 1, delay: 0.3, ease: "power3.out" }
     );
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    // Image preview click handler
+    const handleImageClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'IMG' && articleRef.current?.contains(target)) {
+        setPreviewImage((target as HTMLImageElement).src);
+      }
+    };
+
+    document.addEventListener('click', handleImageClick);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener('click', handleImageClick);
+    };
   }, []);
+
+  // Animate image preview
+  useEffect(() => {
+    if (previewImage) {
+      document.body.style.overflow = 'hidden';
+      const tl = gsap.timeline();
+      tl.set(previewOverlayRef.current, { display: 'flex' })
+        .fromTo(previewOverlayRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3, ease: "power2.out" }
+        )
+        .fromTo(previewImgRef.current,
+          { scale: 0.8, opacity: 0, y: 20 },
+          { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
+          "-=0.2"
+        );
+    } else {
+      document.body.style.overflow = '';
+      if (previewOverlayRef.current) {
+        gsap.to(previewOverlayRef.current, {
+          opacity: 0,
+          duration: 0.3,
+          ease: "power2.in",
+          onComplete: () => {
+            if (previewOverlayRef.current) {
+              previewOverlayRef.current.style.display = 'none';
+            }
+          }
+        });
+      }
+    }
+  }, [previewImage]);
 
   // Animate button visibility
   useEffect(() => {
@@ -203,109 +251,120 @@ export default function ArticleDetail() {
         />
       </div>
 
-      <div className="max-w-4xl mx-auto">
-        {/* Back to Top Button */}
-        <button
-          ref={backToTopRef}
-          onClick={scrollToTop}
-          className="fixed bottom-12 right-12 z-[70] hidden items-center justify-center w-14 h-14 rounded-full bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/40 dark:border-white/10 hover:scale-110 active:scale-95 transition-transform group"
-          aria-label="Back to top"
-          style={{ opacity: 0, transform: "translateY(20px) scale(0.8)" }}
-        >
-          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
-          <svg 
-            className="w-6 h-6 relative z-10 group-hover:-translate-y-1 transition-transform" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-          </svg>
-        </button>
-
-        {/* Navigation & Actions */}
-        <div className="flex items-center justify-between mb-12">
-          <Link 
-            to="/articles"
-            className="group flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-          >
-            <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-white/5 shadow-sm border border-gray-100 dark:border-white/10 group-hover:scale-110 transition-transform">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </div>
-            <span>返回列表</span>
-          </Link>
-          
-          <div className="flex gap-4">
-            {/* Social Share Placeholder */}
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-white/5 shadow-sm border border-gray-100 dark:border-white/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col xl:flex-row gap-12 items-start justify-center">
+          {/* Main Content Area */}
+          <div className="w-full max-w-4xl">
+            {/* Back to Top Button */}
+            <button
+              ref={backToTopRef}
+              onClick={scrollToTop}
+              className="fixed bottom-12 right-12 z-[70] hidden items-center justify-center w-14 h-14 rounded-full bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/40 dark:border-white/10 hover:scale-110 active:scale-95 transition-transform group"
+              aria-label="Back to top"
+              style={{ opacity: 0, transform: "translateY(20px) scale(0.8)" }}
+            >
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
+              <svg 
+                className="w-6 h-6 relative z-10 group-hover:-translate-y-1 transition-transform" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
               </svg>
             </button>
-          </div>
-        </div>
 
-        {/* Article Header */}
-        <header ref={headerRef} className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-            {category}
-          </div>
-          <h1 className="text-4xl sm:text-6xl font-black text-gray-900 dark:text-white mb-8 tracking-tight leading-[1.1]">
-            {title}
-          </h1>
-          <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              {new Date(date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              {description.length > 0 ? `${Math.ceil(contentHtml.length / 500)} 分钟阅读` : "5 分钟阅读"}
-            </div>
-          </div>
-        </header>
-
-        {/* Article Content Card */}
-        <article 
-          ref={articleRef}
-          className="relative group"
-        >
-          {/* Decorative side line */}
-          <div className="absolute -left-12 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-200 dark:via-white/10 to-transparent hidden xl:block" />
-          
-          <div className="bg-white/70 dark:bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/40 dark:border-white/10 p-8 sm:p-12 md:p-16 shadow-2xl shadow-indigo-500/5">
-            {/* Introduction / Summary */}
-            {description && (
-              <div className="mb-12 pb-12 border-b border-gray-100 dark:border-white/5">
-                <p className="text-xl text-gray-600 dark:text-gray-300 italic leading-relaxed font-medium">
-                  "{description}"
-                </p>
+            {/* Navigation & Actions */}
+            <div className="flex items-center justify-between mb-12">
+              <Link 
+                to="/articles"
+                className="group flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              >
+                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-white/5 shadow-sm border border-gray-100 dark:border-white/10 group-hover:scale-110 transition-transform">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </div>
+                <span>返回列表</span>
+              </Link>
+              
+              <div className="flex gap-4">
+                {/* Social Share Placeholder */}
+                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-white/5 shadow-sm border border-gray-100 dark:border-white/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                </button>
               </div>
-            )}
-
-            <div className="prose prose-lg dark:prose-invert max-w-none 
-              prose-headings:font-black prose-headings:tracking-tight 
-              prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-6
-              prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-p:leading-[1.8] prose-p:mb-8
-              prose-a:text-indigo-600 dark:prose-a:text-indigo-400 prose-a:font-semibold prose-a:no-underline hover:prose-a:underline decoration-2 underline-offset-4
-              prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/50 dark:prose-blockquote:bg-indigo-500/5 prose-blockquote:py-2 prose-blockquote:px-8 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic prose-blockquote:font-medium prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-200
-              prose-img:rounded-[2rem] prose-img:shadow-2xl prose-img:mx-auto
-              prose-code:text-indigo-600 dark:prose-code:text-indigo-300 prose-code:bg-indigo-50 dark:prose-code:bg-indigo-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
-              prose-pre:bg-gray-950 dark:prose-pre:bg-black prose-pre:rounded-2xl prose-pre:shadow-2xl prose-pre:border prose-pre:border-white/10
-              prose-ul:list-disc prose-ul:pl-6 prose-li:mb-2
-              selection:bg-indigo-500/30 selection:text-indigo-900 dark:selection:text-indigo-100"
-            >
-              {parse(contentHtml)}
             </div>
+
+            {/* Article Header */}
+            <header ref={headerRef} className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                {category}
+              </div>
+              <h1 className="text-4xl sm:text-6xl font-black text-gray-900 dark:text-white mb-8 tracking-tight leading-[1.1]">
+                {title}
+              </h1>
+              <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {new Date(date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  {description.length > 0 ? `${Math.ceil(contentHtml.length / 500)} 分钟阅读` : "5 分钟阅读"}
+                </div>
+              </div>
+            </header>
+
+            {/* Article Content Card */}
+            <article 
+              ref={articleRef}
+              className="relative group"
+            >
+              {/* Decorative side line */}
+              <div className="absolute -left-12 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-200 dark:via-white/10 to-transparent hidden xl:block" />
+              
+              <div className="bg-white/70 dark:bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/40 dark:border-white/10 p-8 sm:p-12 md:p-16 shadow-2xl shadow-indigo-500/5">
+                {/* Introduction / Summary */}
+                {description && (
+                  <div className="mb-12 pb-12 border-b border-gray-100 dark:border-white/5">
+                    <p className="text-xl text-gray-600 dark:text-gray-300 italic leading-relaxed font-medium">
+                      "{description}"
+                    </p>
+                  </div>
+                )}
+
+                <div className="prose prose-lg dark:prose-invert max-w-none 
+                  prose-headings:font-black prose-headings:tracking-tight 
+                  prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-6
+                  prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-p:leading-[1.8] prose-p:mb-8
+                  prose-a:text-indigo-600 dark:prose-a:text-indigo-400 prose-a:font-semibold prose-a:no-underline hover:prose-a:underline decoration-2 underline-offset-4
+                  prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/50 dark:prose-blockquote:bg-indigo-500/5 prose-blockquote:py-2 prose-blockquote:px-8 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic prose-blockquote:font-medium prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-200
+                  prose-img:rounded-[2rem] prose-img:shadow-2xl prose-img:mx-auto
+                  prose-code:text-indigo-600 dark:prose-code:text-indigo-300 prose-code:bg-indigo-50 dark:prose-code:bg-indigo-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
+                  prose-pre:bg-gray-950 dark:prose-pre:bg-black prose-pre:rounded-2xl prose-pre:shadow-2xl prose-pre:border prose-pre:border-white/10
+                  prose-ul:list-disc prose-ul:pl-6 prose-li:mb-2
+                  selection:bg-indigo-500/30 selection:text-indigo-900 dark:selection:text-indigo-100"
+                >
+                  {parse(contentHtml)}
+                </div>
+              </div>
+            </article>
           </div>
-        </article>
+
+          {/* Sidebar Area */}
+          <aside className="w-full xl:w-80 flex flex-col gap-6 sticky top-32">
+            <ClockWidget />
+            <WeatherWidget />
+          </aside>
+        </div>
 
         {/* Article Copyright & Meta Card */}
         <section className="mt-12 bg-gray-50/50 dark:bg-white/5 backdrop-blur-md rounded-3xl border border-gray-200/50 dark:border-white/10 p-8 overflow-hidden relative group">
@@ -341,6 +400,32 @@ export default function ArticleDetail() {
             </div>
           </div>
         </section>
+
+        {/* Image Preview Overlay */}
+        <div 
+          ref={previewOverlayRef}
+          className="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm cursor-zoom-out"
+          onClick={() => setPreviewImage(null)}
+        >
+          <button 
+            className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              setPreviewImage(null);
+            }}
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <img 
+            ref={previewImgRef}
+            src={previewImage || ''} 
+            alt="Preview" 
+            className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
 
         {/* Bottom Actions */}
         <footer className="mt-20 pt-16 border-t border-gray-100 dark:border-white/5 text-center">
