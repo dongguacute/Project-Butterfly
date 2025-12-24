@@ -24,10 +24,11 @@ export function Navbar() {
         start: "top top",
         end: "+=200",
         scrub: 1,
+        invalidateOnRefresh: true,
       },
       y: -12,
-      width: "50%",
-      maxWidth: "420px",
+      width: (window.innerWidth < 768) ? "calc(100% - 3rem)" : "50%",
+      maxWidth: (window.innerWidth < 768) ? "none" : "420px",
       ease: "none",
     });
 
@@ -37,11 +38,12 @@ export function Navbar() {
         start: "top top",
         end: "+=200",
         scrub: 1,
+        invalidateOnRefresh: true,
       },
-      paddingLeft: "1rem",
-      paddingRight: "1rem",
-      paddingTop: "0.4rem",
-      paddingBottom: "0.4rem",
+      paddingLeft: (window.innerWidth < 768) ? "1.5rem" : "1rem",
+      paddingRight: (window.innerWidth < 768) ? "1.5rem" : "1rem",
+      paddingTop: (window.innerWidth < 768) ? "0.75rem" : "0.4rem",
+      paddingBottom: (window.innerWidth < 768) ? "0.75rem" : "0.4rem",
       backgroundColor: theme === "dark" ? "rgba(15, 23, 42, 0.9)" : "rgba(255, 255, 255, 0.6)",
       boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
       ease: "none",
@@ -75,7 +77,7 @@ export function Navbar() {
           className="flex items-center gap-3 hover:opacity-80 transition-opacity active:scale-95 duration-200"
         >
           <img src={logo} alt="Project Butterfly Logo" className="w-8 h-8 object-contain" />
-          <span className="text-lg font-bold text-gray-900 dark:text-white select-none tracking-tight">
+          <span className="text-lg font-bold text-gray-900 dark:text-white select-none tracking-tight hidden md:block">
             Project Butterfly
           </span>
         </Link>
