@@ -206,7 +206,7 @@ export function Navbar({
         </div>
 
         {/* Controls */}
-        <div ref={controlsRef} className="flex items-center gap-2 relative z-[60]">
+        <div ref={controlsRef} className="flex items-center gap-2 relative z-[60] pointer-events-auto">
           <button
             onClick={() => setIsSearchOpen(true)}
             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-all group border border-transparent hover:border-black/10 dark:hover:border-white/10"
@@ -267,13 +267,13 @@ export function Navbar({
           {/* Hamburger Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="sm:hidden p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all group"
+            className="sm:hidden p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all group relative z-[70] pointer-events-auto"
             aria-label="Toggle menu"
           >
             <div className="w-5 h-5 relative flex flex-col items-center justify-center gap-1">
-              <span className={`w-5 h-0.5 bg-gray-600 dark:text-gray-400 transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
-              <span className={`w-5 h-0.5 bg-gray-600 dark:text-gray-400 transition-all duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`} />
-              <span className={`w-5 h-0.5 bg-gray-600 dark:text-gray-400 transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
+              <span className={`w-5 h-0.5 bg-gray-600 dark:bg-gray-400 transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
+              <span className={`w-5 h-0.5 bg-gray-600 dark:bg-gray-400 transition-all duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`} />
+              <span className={`w-5 h-0.5 bg-gray-600 dark:bg-gray-400 transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
             </div>
           </button>
         </div>
@@ -283,7 +283,7 @@ export function Navbar({
       {isMenuOpen && (
         <div 
           ref={mobileMenuRef}
-          className="sm:hidden absolute top-full left-0 right-0 mt-4 p-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl border border-white/30 dark:border-white/10 rounded-3xl shadow-2xl z-40"
+          className="sm:hidden absolute top-full left-0 right-0 mt-4 p-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl border border-white/30 dark:border-white/10 rounded-3xl shadow-2xl z-[80] pointer-events-auto"
         >
           <div className="flex flex-col gap-2">
             <NavLink 
