@@ -87,6 +87,23 @@ function rehypeCsvToTable() {
   };
 }
 
+// Custom plugin to handle relative image paths
+function rehypeImageTransformer() {
+  return (tree: any) => {
+    visit(tree, 'element', (node) => {
+      if (node.tagName === 'img' && node.properties?.src) {
+        const src = node.properties.src;
+        // Transform ./img/... or img/... to /content-img/...
+        if (src.startsWith('./img/')) {
+          node.properties.src = src.replace('./img/', '/content-img/');
+        } else if (src.startsWith('img/')) {
+          node.properties.src = src.replace('img/', '/content-img/');
+        }
+      }
+    });
+  };
+}
+
 export async function loader({ params }: LoaderFunctionArgs) {
   const { slug } = params;
   
@@ -121,6 +138,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     .use(remarkDirectiveTransformer)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
+    .use(rehypeImageTransformer)
     .use(rehypeCsvToTable)
     .use(rehypeHighlight, { 
       detect: true,

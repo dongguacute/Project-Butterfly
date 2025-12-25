@@ -20,6 +20,24 @@ export default {
         }
       });
     }
+
+    // Scan content/img directory for all images to prerender them
+    const imgDir = path.join(process.cwd(), "app", "content", "img");
+    if (fs.existsSync(imgDir)) {
+      const scanImages = (dir: string, base: string = "") => {
+        const items = fs.readdirSync(dir);
+        items.forEach(item => {
+          const fullPath = path.join(dir, item);
+          const relativePath = path.join(base, item);
+          if (fs.statSync(fullPath).isDirectory()) {
+            scanImages(fullPath, relativePath);
+          } else {
+            paths.push(`/content-img/${relativePath.replace(/\\/g, '/')}`);
+          }
+        });
+      };
+      scanImages(imgDir);
+    }
     
     return paths;
   },
